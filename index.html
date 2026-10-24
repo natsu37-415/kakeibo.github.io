@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="かけいぼ">
 <meta name="theme-color" content="#1f5f5b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>かけいぼ</title>
 <style>
 :root{--ink:#1c2630;--sub:#6b7782;--line:#dfe4e8;--bg:#f2f4f6;--card:#fff;--c:#1f5f5b;--neg:#c0392b}
@@ -87,6 +89,53 @@ label.t{display:block;font-size:15px;color:var(--sub);margin:14px 0 6px}
 .a.in{color:#1f8a5b}
 .del{width:100%;margin-top:28px;color:#c0392b;font-weight:700;border:2px solid #c0392b;border-radius:12px}
 .empty{text-align:center;color:var(--sub);padding:50px 20px}
+.tot{background:var(--c);color:#fff;border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.tot small{color:#cfe3e1;font-size:14px}
+.tot b{display:block;font-size:32px}
+.tot .ms{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:15px;margin-top:6px;color:#e6f2f1}
+.cbox{margin-bottom:18px}
+.cbox h2{font-size:19px;margin:0 0 2px}
+.cbox .info{color:var(--sub);font-size:14px;margin-bottom:8px}
+.bill{background:var(--card);border-radius:14px;margin-bottom:8px;padding:2px 12px 10px}
+.bhead{width:100%;display:flex;align-items:center;gap:8px;text-align:left;min-height:56px}
+.bhead .bm{flex:1}
+.bhead .bm small{display:block;color:var(--sub);font-size:13px}
+.bhead .ba{font-size:22px;font-weight:700}
+.st{color:var(--sub);font-size:15px}
+.st.ok{color:#1f8a5b}
+.bact{margin-top:6px}
+.mini{min-height:44px;padding:0 18px;border-radius:12px;border:2px solid var(--line);font-weight:700}
+.mini.on{background:var(--c);border-color:var(--c);color:#fff}
+.det{margin-top:8px;border-top:1px solid var(--line)}
+.drow{width:100%;display:flex;gap:10px;align-items:center;text-align:left;min-height:46px;font-size:16px}
+.drow span:first-child{width:46px;color:var(--sub)}
+.drow .dn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{display:inline-block;padding:2px 12px;border-radius:14px;font-size:14px;background:#e3f1ef;color:#14504c;margin-right:6px}
+.pill.warn{background:#fff3d6;color:#6b4a00}
+.pill.ok{background:#e4f3ea;color:#1f6b45}
+.pill.off{background:var(--bg);color:var(--sub)}
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:14px;padding:4px;margin-bottom:12px}
+.tabs button{flex:1;border-radius:10px;font-weight:700;font-size:19px}
+.tabs button.on{background:var(--c);color:#fff}
+.wal{display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:8px;font-size:19px}
+.wal b{font-size:22px}
+.calc{background:var(--card);border-radius:16px;padding:6px 16px}
+.calc div{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:17px}
+.calc div:last-child{border:0;font-weight:700;font-size:19px}
+.calc .eq b{font-size:24px}
+.mcs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.mc{background:var(--card);border-radius:16px;padding:12px 14px}
+.mc small{display:block;color:var(--sub);font-size:14px}
+.mc b{font-size:24px}
+.mc b.in{color:#1f8a5b}
+.mc b.out{color:var(--neg)}
+.xf{margin-top:12px;text-align:center;color:var(--sub);font-size:16px}
+.bar{display:block;width:100%;text-align:left;background:var(--card);border-radius:14px;padding:10px 14px;margin-bottom:8px;min-height:0}
+.bt{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:17px}
+.bg{height:14px;background:var(--bg);border-radius:7px;overflow:hidden}
+.bg i{display:block;height:100%;background:var(--c);border-radius:7px}
+.act{width:100%;min-height:56px;border-radius:14px;background:var(--c);color:#fff;font-weight:700;margin-bottom:8px}
+.act.sub{background:var(--card);color:var(--ink);border:2px solid var(--line)}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 40px);transform:translateX(-50%);background:#1c2630;color:#fff;padding:12px 20px;border-radius:24px;font-size:17px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;white-space:nowrap}
 .toast.show{opacity:1}
 </style>
@@ -110,9 +159,10 @@ const save = (store, obj) => DB.put(store, obj).catch(() => toast('保存でき�
 /* ---------- ホーム ---------- */
 function homeView() {
   const o = Core.overview(D);
+  const nag = needBackup() ? '<div class="note">そろそろバックアップしてね。<button class="act" data-act="backup" style="margin-top:8px">今日バックアップする</button></div>' : '';
   const hint = !standalone() ? '<div class="note">Safariの共有ボタンから「ホーム画面に追加」して、そのアイコンから使ってね。</div>' : '';
   const b = (v, n) => `<button class="big" data-act="go" data-v="${v}">${n}</button>`;
-  return `<div class="home"><h1>かけいぼ</h1>${hint}
+  return `<div class="home"><h1>かけいぼ</h1>${hint}${nag}
     <div class="bal"><div><small>現残高</small><b class="${o.total < 0 ? 'neg' : ''}">${money(o.total)}</b></div><div><small>実残高</small><b class="${o.real < 0 ? 'neg' : ''}">${money(o.real)}</b></div></div>
     <div class="sub">カード未払い ${yen(o.unpaid)}　／　取り置き ${yen(o.reserved)}</div>
     <div class="grid">${b('input', '✏️ 入力')}${b('list', '📒 一覧')}${b('flow', '💰 お金の流れ')}${b('card', '💳 カード')}${b('fixed', '🏠 固定費')}${b('settings', '⚙ 設定')}</div></div>`;
@@ -149,6 +199,15 @@ function settingsView() {
     <h2 class="h2">クレジットカード</h2>${cards.map(cardRow).join('')}<button class="add" data-act="cardadd">＋カードを追加</button>
     <h2 class="h2">分類</h2><div class="seg">${[['out', '支出'], ['in', '収入']].map(([v, n]) => `<button data-act="tset" data-v="${v}" class="${T.kind === v ? 'on' : ''}">${n}</button>`).join('')}</div>
     ${cats}<button class="add" data-act="catadd">＋分類を追加</button>
+    <h2 class="h2">バックアップ</h2>
+    <div class="hint" style="margin:0 0 8px">${S.lastBackup ? '最後のバックアップ：' + S.lastBackup : 'まだバックアップしてないよ'}</div>
+    <button class="act" data-act="backup">LINEなどに送る</button>
+    <button class="act sub" data-act="bcopy">テキストをコピー</button>
+    <h2 class="h2">復元</h2>
+    <button class="act sub" data-act="rfile">ファイルから復元</button>
+    <button class="act sub" data-act="rpaste">貼り付けて復元</button>
+    ${R.open ? `<textarea class="txt" id="rtext" rows="5" placeholder="コピーしたバックアップをここに貼る">${esc(R.text)}</textarea><button class="act" data-act="rgo" style="margin-top:8px">この内容で復元</button>` : ''}
+    <input type="file" id="rfile" hidden>
     <div class="hint">「隠す」と入力の選択肢から消えるだけで、過去の記録はそのまま残るよ。</div>
   </main>`;
 }
@@ -156,6 +215,7 @@ function settingsView() {
 /* ---------- 入力（支出・収入・振替・精算） ---------- */
 const newForm = () => ({ kind: 'out', amount: '', store: '', cat: null, wallet: null, from: null, to: null, date: Core.todayStr(), fixedId: null, card: null, billMonth: null, editId: null });
 let F = newForm();
+let backTo = 'home';   // 入力画面から戻る先
 let L = null;
 const md = s => (+s.slice(5, 7)) + '/' + (+s.slice(8, 10));
 const chips = (items, key, cur) => `<div class="chips">${items.map(i => `<button data-act="pick" data-k="${key}" data-v="${i.id}" class="${cur === i.id ? 'on' : ''}">${esc(i.name)}</button>`).join('')}</div>`;
@@ -192,7 +252,7 @@ function inputView() {
       (F.card && bl.length ? `<label class="t">何月分？</label><div class="chips">${bl.map(b => `<button data-act="pick" data-k="billMonth" data-v="${b.billMonth}" class="${F.billMonth === b.billMonth ? 'on' : ''}">${+b.billMonth.slice(5)}月分　${yen(b.calc)}</button>`).join('')}</div>` : '') +
       `<label class="t">引き落とし口座</label>${chips(pay.filter(w => w.type === 'account'), 'wallet', F.wallet)}${note}${date}`;
   }
-  return `<header><button class="back" data-act="go" data-v="${F.editId ? 'list' : 'home'}">‹ もどる</button><h1>${F.editId ? '修正' : '入力'}</h1></header>
+  return `<header><button class="back" data-act="go" data-v="${backTo}">‹ もどる</button><h1>${F.editId ? '修正' : '入力'}</h1></header>
   <main><div class="seg">${kinds.map(([v, n]) => `<button data-act="kind" data-v="${v}" class="${F.kind === v ? 'on' : ''}">${n}</button>`).join('')}</div>
     <div class="amt">${label}　¥ <b>${F.amount ? Number(F.amount).toLocaleString('ja-JP') : '0'}</b></div>
     <div class="pad">${keys.map(k => `<button data-act="key" data-v="${k}">${k}</button>`).join('')}</div>${body}${F.editId ? '<button class="del" data-act="del">この記録を削除</button>' : ''}<div style="height:90px"></div></main>
@@ -220,7 +280,7 @@ async function saveRecord() {
   }
   try { await DB.commit({ records: [r] }); } catch (e) { return toast('保存できなかった。空き容量を確認してね'); }
   if (F.editId) D.records = D.records.map(x => x.id === r.id ? r : x); else D.records.push(r);
-  toast(F.editId ? '直したよ' : '保存したよ'); screen = F.editId ? 'list' : 'home'; F = newForm(); render();
+  toast(F.editId ? '直したよ' : '保存したよ'); screen = backTo; F = newForm(); render();
 }
 
 /* ---------- 一覧 ---------- */
@@ -255,11 +315,178 @@ function listView() {
     ${rows.length ? rows.map(rowHtml).join('') : '<div class="empty">該当する記録はないよ</div>'}</main>`;
 }
 
+/* ---------- カード ---------- */
+const CS = { open: {} };
+const pad2 = n => String(n).padStart(2, '0');
+function usePeriod(c, closeDate) {   // この請求の利用期間（前回の締め日の翌日〜今回の締め日）
+  const [y, m] = closeDate.split('-').map(Number), [py, pm] = Core.addMonths(y + '-' + pad2(m), -1).split('-').map(Number);
+  const pd = c.closing === 'eom' ? new Date(py, pm, 0).getDate() : c.closing, s = new Date(py, pm - 1, pd + 1);
+  return md(s.getFullYear() + '-' + pad2(s.getMonth() + 1) + '-' + pad2(s.getDate())) + '〜' + md(closeDate);
+}
+function cardView() {
+  const all = Core.bills(D), open = all.filter(b => !b.settled), total = open.reduce((t, b) => t + b.calc, 0), byM = {};
+  open.forEach(b => { byM[b.billMonth] = (byM[b.billMonth] || 0) + b.calc; });
+  const ms = Object.keys(byM).sort().map(m => `<span>${+m.slice(5)}月分 ${yen(byM[m])}</span>`).join('');
+  const billHtml = (c, b) => {
+    const key = c.id + '|' + b.billMonth, isOpen = CS.open[key];
+    const status = b.settled ? `<div class="st ok">精算ずみ ${md(b.settleDate)}　実額 ${yen(b.actual)}${b.diff ? '　差 ' + (b.diff > 0 ? '+' : '−') + yen(Math.abs(b.diff)) : '（計算どおり）'}</div>` : `<div class="st">${md(b.dueDate)}に引き落とし</div>`;
+    const btn = b.settled ? `<button class="mini" data-act="edit" data-id="${b.settleId}">精算を直す</button>` : `<button class="mini on" data-act="settle" data-card="${c.id}" data-v="${b.billMonth}">精算する</button>`;
+    const ex = D.records.filter(r => r.kind === 'out' && r.wallet === c.id && Core.billFor(c, r.date).billMonth === b.billMonth).sort((x, y) => y.date.localeCompare(x.date));
+    const det = !isOpen ? '' : `<div class="det">${ex.length ? ex.map(r => `<button class="drow" data-act="edit" data-id="${r.id}"><span>${md(r.date)}</span><span class="dn">${esc(r.store || nameC(r.cat))}</span><b>${yen(r.amount)}</b></button>`).join('') : '<div class="empty" style="padding:16px">明細はないよ</div>'}</div>`;
+    return `<div class="bill"><button class="bhead" data-act="bill" data-v="${key}"><span class="bm"><b>${+b.billMonth.slice(5)}月分</b><small>${b.closeDate ? '利用 ' + usePeriod(c, b.closeDate) : ''}</small></span><span class="ba">${yen(b.calc)}</span><span>${isOpen ? '▲' : '▼'}</span></button>${status}<div class="bact">${btn}</div>${det}</div>`;
+  };
+  const box = c => {
+    const bl = all.filter(b => b.card === c.id), todo = bl.filter(b => !b.settled), done = bl.filter(b => b.settled).slice(-2).reverse();
+    const acc = findW(c.payAccount);
+    const info = (c.closing === 'eom' ? '月末' : c.closing + '日') + '締め → ' + (c.dueMonths === 1 ? '翌月' : '翌々月') + c.dueDay + '日払い' + (acc ? '（' + acc.name + '）' : '（引き落とし口座が未設定）');
+    return `<div class="cbox"><h2>💳 ${esc(c.name)}</h2><div class="info">${esc(info)}</div>${todo.concat(done).map(b => billHtml(c, b)).join('') || '<div class="st">まだ利用はないよ</div>'}</div>`;
+  };
+  const cards = D.wallets.filter(w => w.type === 'card' && (!w.hidden || open.some(b => b.card === w.id)));
+  return `<header><button class="back" data-act="go" data-v="home">‹ もどる</button><h1>カード</h1></header>
+  <main><div class="tot"><small>全カードの未払い</small><b>${yen(total)}</b><div class="ms">${ms || '<span>引き落とし待ちはないよ</span>'}</div></div>${cards.map(box).join('')}</main>`;
+}
+
+/* ---------- 固定費と取り置き ---------- */
+let INIT = {}, FX = null;
+const pcycle = () => Core.cycleOf(Core.todayStr(), D.settings.payday);
+function dueIn(day, cycle) {   // このサイクルの中で、毎月○日はいつか
+  const ym = day >= D.settings.payday ? cycle : Core.addMonths(cycle, 1), [y, m] = ym.split('-').map(Number);
+  return y + '-' + pad2(m) + '-' + pad2(Math.min(day, new Date(y, m, 0).getDate()));
+}
+function fixedView() {
+  const S = D.settings, cur = pcycle(), R = Core.cycleRange(cur, S.payday), today = Core.todayStr();
+  const items = D.fixed.filter(x => !x.hidden), out = Core.outstandingReserves(D);
+  const row = x => {
+    const mine = out.filter(r => r.fixedId === x.id), sum = mine.reduce((t, r) => t + r.amount, 0);
+    let pill = '<span class="pill off">取り置き前</span>', btn = '';
+    if (S.reserveEnabled) {
+      if (mine.length) { const old = mine.some(r => r.cycle < cur); pill = `<span class="pill ${old ? 'warn' : ''}">${old ? '持ち越し ' : '取り置き中 '}${yen(sum)}</span>`; btn = `<button class="mini on" data-act="fxpay" data-id="${x.id}">払った</button>`; }
+      else if (D.reserves.some(r => r.cycle === cur && r.fixedId === x.id)) pill = '<span class="pill ok">支払いずみ</span>';
+      else pill = '<span class="pill off">今回は取り置きなし</span>';
+    }
+    return `<div class="bill"><button class="bhead" data-act="fxedit" data-id="${x.id}"><span class="bm"><b>${esc(x.name)} ✎</b><small>毎月${x.day}日 / ${esc(nameC(x.cat))} / ${esc(nameW(x.wallet))}</small></span><span class="ba">${yen(x.amount)}</span></button><div class="bact">${pill}${btn}</div></div>`;
+  };
+  const init = !S.reserveEnabled && items.length ? `<div class="note">取り置きを始める前に、今のサイクル（${md(R.start)}〜${md(R.end)}）の分を確認してね。</div>` +
+    items.map(x => { const ch = INIT[x.id] || (dueIn(x.day, cur) < today ? 'paid' : 'todo');
+      return `<div class="bill"><b>${esc(x.name)}　${yen(x.amount)}</b><div class="chips" style="margin:6px 0 8px">${[['todo', 'これから払う'], ['paid', 'もう払った']].map(([v, n]) => `<button data-act="finit" data-id="${x.id}" data-v="${v}" class="${ch === v ? 'on' : ''}">${n}</button>`).join('')}</div></div>`; }).join('') +
+    '<button class="mini on" style="width:100%;min-height:54px;margin-top:6px" data-act="fstart">この内容で取り置きを始める</button>' : '';
+  return `<header><button class="back" data-act="go" data-v="home">‹ もどる</button><h1>固定費</h1></header>
+  <main><div class="tot"><small>いまの取り置き（${md(R.start)}〜${md(R.end)}）</small><b>${yen(Core.reserved(D))}</b></div>
+    ${items.map(row).join('') || '<div class="empty">固定費はまだないよ。家賃などを登録してね</div>'}
+    <button class="add" data-act="fxnew">＋固定費を追加</button><div style="height:16px"></div>${init}</main>`;
+}
+function fixedEditView() {
+  const cats = D.categories.filter(c => c.kind === 'out' && (!c.hidden || c.id === FX.cat)).map(c => ({ id: c.id, name: c.name }));
+  const ws = D.wallets.filter(w => !w.hidden || w.id === FX.wallet).map(lab);
+  const ch = (k, items, cur) => `<div class="chips">${items.map(i => `<button data-act="fxpick" data-k="${k}" data-v="${i.id}" class="${cur === i.id ? 'on' : ''}">${esc(i.name)}</button>`).join('')}</div>`;
+  return `<header><button class="back" data-act="go" data-v="fixed">‹ もどる</button><h1>${FX.id ? '固定費を直す' : '固定費を追加'}</h1></header>
+  <main><label class="t">名前</label><input class="txt" id="fxname" value="${esc(FX.name)}" placeholder="例：家賃" autocomplete="off">
+    <label class="t">毎月の金額（光熱費などは予算の額）</label><input class="txt" id="fxamt" inputmode="numeric" value="${FX.amount}" placeholder="0">
+    <label class="t">支払い日（毎月）</label><select id="fxday" class="txt">${range(1, 31).map(n => opt(n, n + '日', FX.day)).join('')}</select>
+    <label class="t">分類</label>${ch('cat', cats, FX.cat)}<label class="t">支払い元</label>${ch('wallet', ws, FX.wallet)}
+    ${FX.id ? '<button class="del" data-act="fxhide">この固定費を隠す</button>' : ''}<div style="height:90px"></div></main>
+  <div class="savebar"><button data-act="fxsave">保存</button></div>`;
+}
+async function fxSave() {
+  const amt = parseInt(FX.amount || '0', 10), name = FX.name.trim();
+  if (!name) return toast('名前を入れてね');
+  if (!amt) return toast('金額を入れてね');
+  if (!FX.cat) return toast('分類を選んでね');
+  if (!FX.wallet) return toast('支払い元を選んでね');
+  const old = FX.id && D.fixed.find(x => x.id === FX.id);
+  const o = { id: FX.id || Core.uid(), name, amount: amt, cat: FX.cat, wallet: FX.wallet, day: FX.day, hidden: false };
+  if (old) { o.hidden = old.hidden; if (old.startCycle) o.startCycle = old.startCycle; }
+  const puts = { fixed: [o] };
+  if (!old && D.settings.reserveEnabled) {   // 取り置き開始後に足した固定費：今回の分を取り置くか聞く
+    const cur = pcycle();
+    if (confirm('「' + name + '」は、今のサイクルの分をこれから払う？\n\nOK＝取り置く\nキャンセル＝もう払った（今回は取り置かない）')) puts.reserves = [{ id: Core.uid(), cycle: cur, fixedId: o.id, amount: amt }];
+    else o.startCycle = Core.addMonths(cur, 1);
+  }
+  try { await DB.commit(puts); } catch (e) { return toast('保存できなかった'); }
+  const i = D.fixed.findIndex(x => x.id === o.id); if (i >= 0) D.fixed[i] = o; else D.fixed.push(o);
+  if (puts.reserves) D.reserves.push(...puts.reserves);
+  toast('保存したよ'); FX = null; screen = 'fixed'; render();
+}
+
+/* ---------- お金の流れ ---------- */
+let G = null;
+const newG = () => ({ tab: 'bal', cycle: pcycle(), kind: 'out' });
+function flowView() {
+  const tabs = [['bal', '残高'], ['sum', '収支'], ['cat', '内訳']], R = Core.cycleRange(G.cycle, D.settings.payday);
+  const mon = G.tab === 'bal' ? '' : `<div class="mon"><button data-act="gmon" data-v="-1">‹</button><b>${md(R.start)}〜${md(R.end)}</b><button data-act="gmon" data-v="1">›</button></div>`;
+  let body = '';
+  if (G.tab === 'bal') {
+    const o = Core.overview(D), b = Core.balances(D);
+    const grp = (type, name) => { const ws = D.wallets.filter(w => w.type === type && (!w.hidden || b[w.id])); return ws.length ? `<h2 class="h2">${name}</h2>` + ws.map(w => `<div class="wal"><span>${esc(w.name)}</span><b class="${b[w.id] < 0 ? 'neg' : ''}">${money(b[w.id])}</b></div>`).join('') : ''; };
+    body = `<div class="tot"><small>現残高（口座＋現金＋プリペイド）</small><b>${money(o.total)}</b></div>` + grp('account', '口座') + grp('cash', '現金') + grp('prepaid', 'プリペイド') +
+      `<h2 class="h2">実残高のもと</h2><div class="calc"><div><span>現残高</span><b>${money(o.total)}</b></div><div><span>− カード未払い</span><b>${yen(o.unpaid)}</b></div><div><span>− 固定費の取り置き</span><b>${yen(o.reserved)}</b></div><div class="eq"><span>実残高（自由に使える）</span><b class="${o.real < 0 ? 'neg' : ''}">${money(o.real)}</b></div></div>`;
+  } else if (G.tab === 'sum') {
+    const sm = Core.summary(D, G.cycle), pc = D.settings.payday, d = sm.in - sm.out;
+    let xf = 0, st = 0;
+    D.records.forEach(r => { if (Core.cycleOf(r.date, pc) !== G.cycle) return; if (r.kind === 'xfer') xf += r.amount; else if (r.kind === 'settle') st += r.amount; });
+    body = `<div class="mcs"><div class="mc"><small>入ったお金</small><b class="in">${yen(sm.in)}</b></div><div class="mc"><small>出たお金</small><b class="out">${yen(sm.out)}</b></div></div>
+      <div class="mc"><small>差額（入った − 出た）</small><b class="${d < 0 ? 'neg' : ''}">${money(d)}</b></div>
+      <div class="xf">振替 ${yen(xf)}　／　カード引き落とし ${yen(st)}</div>
+      <div class="hint">出たお金は、カード払いも「使った日」で数えているよ。振替と引き落としは入っていない。</div>`;
+  } else {
+    const sm = Core.summary(D, G.cycle), ent = Object.entries(sm.byCat[G.kind]).sort((a, b) => b[1] - a[1]);
+    const tot = ent.reduce((t, e) => t + e[1], 0), max = ent.length ? ent[0][1] : 1;
+    body = `<div class="seg">${[['out', '支出'], ['in', '収入']].map(([v, n]) => `<button data-act="gkind" data-v="${v}" class="${G.kind === v ? 'on' : ''}">${n}</button>`).join('')}</div>` +
+      (ent.length ? `<div class="sum"><span>合計</span><span>${yen(tot)}</span></div>` +
+        ent.map(([id, v]) => `<button class="bar" data-act="barlist" data-id="${id}"><div class="bt"><span>${esc(nameC(id))}</span><span>${yen(v)}</span></div><div class="bg"><i style="width:${Math.max(2, v / max * 100)}%"></i></div></button>`).join('') +
+        '<div class="hint">分類をタップすると、その明細が見られるよ。</div>' : '<div class="empty">この期間の記録はないよ</div>');
+  }
+  return `<header><button class="back" data-act="go" data-v="home">‹ もどる</button><h1>お金の流れ</h1></header>
+  <main><div class="tabs">${tabs.map(([v, n]) => `<button data-act="gtab" data-v="${v}" class="${G.tab === v ? 'on' : ''}">${n}</button>`).join('')}</div>${mon}${body}</main>`;
+}
+
+/* ---------- バックアップと復元 ---------- */
+const R = { open: false, text: '' };
+function needBackup() {   // 最後のバックアップ（なければ使い始め）から30日以上
+  if (!D.records.length) return false;
+  const base = D.settings.lastBackup || D.settings.created; if (!base) return false;
+  return (Date.now() - new Date(base + 'T00:00:00').getTime()) / 864e5 >= 30;
+}
+async function markBackup() { D.settings.lastBackup = Core.todayStr(); await save('settings', D.settings); render(true); }
+function download(name, json) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+async function doBackup() {
+  const json = await DB.exportData(), name = 'kakeibo-backup-' + Core.todayStr() + '.json';
+  try {
+    const file = new File([json], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'かけいぼのバックアップ' });
+    else if (navigator.share) await navigator.share({ title: 'かけいぼのバックアップ', text: json });
+    else download(name, json);
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;     // 共有をやめたときは何もしない
+    try { download(name, json); } catch (_) { return toast('送れなかった。「テキストをコピー」を試してね'); }
+  }
+  toast('バックアップしたよ'); markBackup();
+}
+async function copyBackup() {
+  if (!navigator.clipboard) return toast('コピーできない端末みたい');
+  try { await navigator.clipboard.writeText(await DB.exportData()); } catch (e) { return toast('コピーできなかった'); }
+  toast('コピーしたよ。LINEなどに貼ってね'); markBackup();
+}
+async function applyRestore(text) {
+  let o; try { o = JSON.parse(text); } catch (e) { return toast('読み込めなかった。バックアップかな？'); }
+  if (!o || !o.settings || !Array.isArray(o.wallets) || !Array.isArray(o.records)) return toast('かけいぼのバックアップじゃないみたい');
+  if (!confirm('いまのデータを、バックアップ（記録' + o.records.length + '件）に置き換える？元には戻せないよ。')) return;
+  try { await DB.importData(text); D = await DB.loadAll(); } catch (e) { return toast('復元できなかった'); }
+  if (!D.settings.created) { D.settings.created = Core.todayStr(); save('settings', D.settings); }
+  F = newForm(); L = null; G = null; FX = null; INIT = {}; R.open = false; R.text = '';
+  toast('復元したよ'); screen = 'home'; render();
+}
+
 function stubView(name) { return `<header><button class="back" data-act="go" data-v="home">‹ もどる</button><h1>${name}</h1></header><main><div class="hint">この画面は次のステップで作るよ</div></main>`; }
 const NAMES = { input: '入力', list: '一覧', flow: 'お金の流れ', card: 'カード', fixed: '固定費' };
 function render(keep) {
   const y = window.scrollY;
-  $app.innerHTML = screen === 'home' ? homeView() : screen === 'settings' ? settingsView() : screen === 'input' ? inputView() : screen === 'list' ? listView() : stubView(NAMES[screen]);
+  $app.innerHTML = screen === 'home' ? homeView() : screen === 'settings' ? settingsView() : screen === 'input' ? inputView() : screen === 'list' ? listView() : screen === 'card' ? cardView() : screen === 'flow' ? (G = G || newG(), flowView()) : screen === 'fixed' ? fixedView() : screen === 'fixedEdit' ? fixedEditView() : stubView(NAMES[screen]);
   window.scrollTo(0, keep ? y : 0);
 }
 
@@ -272,9 +499,11 @@ $app.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, v = b.dataset.v, id = b.dataset.id;
   if (a === 'go') {
+    backTo = 'home';
     if (screen === 'settings' && !D.settings.setupDone) { D.settings.setupDone = true; save('settings', D.settings); }
     if (v === 'input') F = newForm();
     if (v === 'list' && screen === 'home') L = newL();
+    if (v === 'flow' && screen === 'home') G = newG();
     screen = v; render();
   }
   else if (a === 'kind') { F = { ...newForm(), kind: v, amount: F.amount, date: F.date, editId: F.editId }; render(true); }
@@ -291,19 +520,65 @@ $app.addEventListener('click', e => {
     render(true);
   }
   else if (a === 'save') saveRecord();
+  else if (a === 'bill') { CS.open[v] = !CS.open[v]; render(true); }
+  else if (a === 'settle') {
+    const c = findW(b.dataset.card), bl = Core.bills(D).find(x => x.card === c.id && x.billMonth === v); if (!bl) return;
+    const t = Core.todayStr();
+    F = { ...newForm(), kind: 'settle', card: c.id, billMonth: v, amount: String(bl.calc), wallet: c.payAccount || null, date: bl.dueDate <= t ? bl.dueDate : t };
+    backTo = 'card'; screen = 'input'; render();
+  }
+  else if (a === 'fxnew') { FX = { id: null, name: '', amount: '', day: 1, cat: null, wallet: null }; screen = 'fixedEdit'; render(); }
+  else if (a === 'fxedit') { const x = D.fixed.find(y => y.id === id); FX = { id: x.id, name: x.name, amount: String(x.amount), day: x.day, cat: x.cat, wallet: x.wallet }; screen = 'fixedEdit'; render(); }
+  else if (a === 'fxpick') { FX[b.dataset.k] = v; render(true); }
+  else if (a === 'fxsave') fxSave();
+  else if (a === 'fxhide') {
+    const x = D.fixed.find(y => y.id === FX.id), mine = Core.outstandingReserves(D).filter(r => r.fixedId === x.id);
+    if (!confirm('「' + x.name + '」を隠す？' + (mine.length ? '\n取り置き中の分も外すよ。' : ''))) return;
+    x.hidden = true;
+    DB.commit({ fixed: [x] }, mine.length ? { reserves: mine.map(r => r.id) } : null).then(() => {
+      D.reserves = D.reserves.filter(r => !mine.includes(r)); toast('隠したよ'); FX = null; screen = 'fixed'; render();
+    }).catch(() => toast('保存できなかった'));
+  }
+  else if (a === 'fxpay') {
+    const x = D.fixed.find(y => y.id === id);
+    F = { ...newForm(), kind: 'out', fixedId: x.id, cat: x.cat, wallet: x.wallet, store: x.name, amount: String(x.amount) };
+    backTo = 'fixed'; screen = 'input'; render();
+  }
+  else if (a === 'finit') { INIT[id] = v; render(true); }
+  else if (a === 'fstart') {
+    const cur = pcycle(), today = Core.todayStr(), res = [], fx = [];
+    D.fixed.filter(x => !x.hidden).forEach(x => {
+      const ch = INIT[x.id] || (dueIn(x.day, cur) < today ? 'paid' : 'todo');
+      if (ch === 'todo') res.push({ id: Core.uid(), cycle: cur, fixedId: x.id, amount: x.amount });
+      else { x.startCycle = Core.addMonths(cur, 1); fx.push(x); }
+    });
+    D.settings.reserveEnabled = true;
+    DB.commit({ reserves: res, fixed: fx, settings: [D.settings] }).then(() => {
+      D.reserves.push(...res); INIT = {}; toast('取り置きを始めたよ'); render();
+    }).catch(() => { D.settings.reserveEnabled = false; toast('保存できなかった'); });
+  }
+  else if (a === 'gtab') { G.tab = v; render(); }
+  else if (a === 'gmon') { G.cycle = Core.addMonths(G.cycle, +v); render(true); }
+  else if (a === 'gkind') { G.kind = v; render(true); }
+  else if (a === 'barlist') { L = { ...newL(), cycle: G.cycle, kind: G.kind, cat: id }; screen = 'list'; render(); }
+  else if (a === 'backup') doBackup();
+  else if (a === 'bcopy') copyBackup();
+  else if (a === 'rfile') document.getElementById('rfile').click();
+  else if (a === 'rpaste') { R.open = !R.open; render(true); }
+  else if (a === 'rgo') applyRestore(R.text);
   else if (a === 'mon') { L.cycle = Core.addMonths(L.cycle, +v); render(); }
   else if (a === 'flopen') { L.open = !L.open; render(true); }
   else if (a === 'fl') { const k = b.dataset.k; L[k] = L[k] === v ? null : v; if (k === 'kind') L.cat = null; render(true); }
   else if (a === 'edit') {
     const r = D.records.find(x => x.id === id); if (!r) return;
     F = { ...newForm(), kind: r.kind, amount: String(r.amount), date: r.date, editId: r.id, store: r.store || '', cat: r.cat || null, wallet: r.wallet || null, from: r.from || null, to: r.to || null, fixedId: r.fixedId || null, card: r.card || null, billMonth: r.billMonth || null };
-    screen = 'input'; render();
+    backTo = screen; screen = 'input'; render();
   }
   else if (a === 'del') {
     if (!confirm('この記録を削除していい？')) return;
     DB.commit(null, { records: [F.editId] }).then(() => {
       D.records = D.records.filter(x => x.id !== F.editId);
-      toast('削除したよ'); F = newForm(); screen = 'list'; render();
+      toast('削除したよ'); F = newForm(); screen = backTo; render();
     }).catch(() => toast('削除できなかった'));
   }
   else if (a === 'tset') { T.kind = v; render(true); }
@@ -330,9 +605,17 @@ $app.addEventListener('click', e => {
   }
 });
 
-$app.addEventListener('input', e => { if (e.target.id === 'store') F.store = e.target.value; });
+$app.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'store') F.store = t.value;
+  else if (t.id === 'rtext') R.text = t.value;
+  else if (t.id === 'fxname') FX.name = t.value;
+  else if (t.id === 'fxamt') FX.amount = t.value.replace(/\D/g, '').slice(0, 9);
+});
 $app.addEventListener('change', e => {
   const t = e.target, f = t.dataset.f;
+  if (t.id === 'rfile') { const fl = t.files[0]; t.value = ''; if (fl) fl.text().then(applyRestore).catch(() => toast('ファイルを読めなかった')); return; }
+  if (t.id === 'fxday') { FX.day = +t.value; return; }
   if (t.id === 'date') { F.date = t.value || Core.todayStr(); render(true); return; }
   if (!f) return;
   if (f === 'payday') {
@@ -349,6 +632,7 @@ $app.addEventListener('change', e => {
 });
 
 /* ---------- 起動 ---------- */
+try { if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js'); } catch (e) {}
 (async () => {
   try {
     D = await DB.init();

@@ -76,9 +76,13 @@ const Core = (() => {
     const by = {}, res = [];
     d.reserves.forEach(r => { (by[r.fixedId] = by[r.fixedId] || []).push(r); });
     Object.keys(by).forEach(fid => {
-      const list = by[fid].sort((a, b) => a.cycle.localeCompare(b.cycle));
-      const paid = d.records.filter(r => r.kind === 'out' && r.fixedId === fid).length;
-      res.push(...list.slice(paid));
+      const left = by[fid].sort((a, b) => a.cycle.localeCompare(b.cycle));
+      // 支払いは日付順に、「そのサイクルの開始日以降」の最も古い取り置きを1つ外す（早払いは外さない）
+      d.records.filter(r => r.kind === 'out' && r.fixedId === fid).sort((a, b) => a.date.localeCompare(b.date)).forEach(r => {
+        const i = left.findIndex(x => cycleRange(x.cycle, d.settings.payday).start <= r.date);
+        if (i >= 0) left.splice(i, 1);
+      });
+      res.push(...left);
     });
     return res;
   }
@@ -87,7 +91,7 @@ const Core = (() => {
   function ensureReserves(d, today) {
     if (!d.settings.reserveEnabled) return [];
     const cycle = cycleOf(today, d.settings.payday);
-    return d.fixed.filter(f => !f.hidden && !d.reserves.some(r => r.cycle === cycle && r.fixedId === f.id))
+    return d.fixed.filter(f => !f.hidden && (!f.startCycle || cycle >= f.startCycle) && !d.reserves.some(r => r.cycle === cycle && r.fixedId === f.id))
       .map(f => ({ id: uid(), cycle, fixedId: f.id, amount: f.amount }));
   }
 
