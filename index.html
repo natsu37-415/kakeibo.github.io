@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="かけいぼ">
+<meta name="theme-color" content="#1f5f5b">
+<title>かけいぼ</title>
+<style>
+:root{--ink:#1c2630;--sub:#6b7782;--line:#dfe4e8;--bg:#f2f4f6;--card:#fff;--c:#1f5f5b;--neg:#c0392b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:18px/1.4 "Hiragino Sans","Noto Sans JP",system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;border:0;background:none;min-height:48px;cursor:pointer}
+input,select{font:inherit;font-size:17px;-webkit-user-select:text;user-select:text}
+#app{min-height:100%;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;background:var(--c);color:#fff;position:sticky;top:0;z-index:2}
+header h1{font-size:20px;margin:0}
+.back{color:#fff;padding:0 12px 0 0}
+main{flex:1;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 40px)}
+.home{padding:calc(env(safe-area-inset-top,0px) + 20px) 16px 24px;flex:1;display:flex;flex-direction:column;gap:12px}
+.home h1{margin:0;font-size:24px}
+.bal{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bal div{background:var(--card);border-radius:16px;padding:12px 14px}
+.bal small{display:block;color:var(--sub);font-size:14px}
+.bal b{font-size:27px;word-break:keep-all}
+.bal div:last-child{background:var(--c);color:#fff}
+.bal div:last-child small{color:#cfe3e1}
+.neg{color:var(--neg)}
+.bal div:last-child .neg{color:#ffd0c8}
+.sub{color:var(--sub);font-size:15px;text-align:center}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1}
+.big{min-height:96px;border-radius:18px;background:var(--card);box-shadow:0 2px 0 var(--line);font-size:21px;font-weight:700}
+.big:active{transform:translateY(2px)}
+.note{background:#fff3d6;border-radius:12px;padding:10px 14px;font-size:16px;margin-bottom:10px}
+.h2{font-size:18px;margin:20px 0 8px}
+.srow{background:var(--card);border-radius:14px;padding:6px 12px 10px;margin-bottom:8px}
+.srow.off{opacity:.5}
+.r1{display:flex;align-items:center;gap:8px}
+.nm{flex:1;text-align:left;font-weight:700;font-size:19px}
+.tag{color:var(--sub);font-size:14px}
+.tg{min-width:72px;border-radius:10px;border:2px solid var(--line);font-size:16px}
+.r2{display:flex;align-items:center;gap:6px;color:var(--sub);font-size:16px}
+.r3{display:grid;gap:8px;color:var(--sub);font-size:15px}
+.r3 label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.r3 label span{width:100%}
+.num,select{min-height:48px;border:2px solid var(--line);border-radius:10px;padding:0 10px;background:#fff;color:var(--ink)}
+.num{flex:1;min-width:0;text-align:right;font-size:20px}
+select{flex:1;min-width:0}
+.add{width:100%;border:2px dashed var(--line);border-radius:14px;color:var(--sub);font-weight:700;margin-top:4px}
+.adds{display:flex;gap:8px}
+.adds .add{flex:1}
+.seg{display:flex;gap:8px;margin-bottom:10px}
+.seg button{flex:1;border-radius:12px;background:var(--card);border:2px solid var(--line);font-weight:700}
+.seg button.on{background:var(--c);border-color:var(--c);color:#fff}
+.crow{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:2px 12px;margin-bottom:8px}
+.crow.off{opacity:.5}
+.hint{color:var(--sub);font-size:15px;margin-top:16px}
+.amt{background:var(--card);border-radius:16px;padding:8px 16px;text-align:right;font-size:18px;color:var(--sub)}
+.amt b{font-size:42px;color:var(--ink)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 6px}
+.pad button{background:var(--card);border-radius:12px;font-size:26px;font-weight:600;min-height:54px;box-shadow:0 2px 0 var(--line)}
+.pad button:active{background:var(--line)}
+label.t{display:block;font-size:15px;color:var(--sub);margin:14px 0 6px}
+.txt{width:100%;min-height:48px;padding:8px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{padding:0 16px;border-radius:24px;background:var(--card);border:2px solid var(--line)}
+.chips button.on{border-color:var(--c);background:var(--c);color:#fff;font-weight:700}
+.pv{background:#e3f1ef;color:#14504c;border-radius:12px;padding:10px 14px;margin-top:10px;font-size:16px}
+.pv.warn{background:#fff3d6;color:#6b4a00}
+.savebar{position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(env(safe-area-inset-bottom,0px) + 10px);background:linear-gradient(transparent,var(--bg) 30%)}
+.savebar button{width:100%;min-height:58px;border-radius:16px;background:var(--c);color:#fff;font-size:22px;font-weight:700}
+.mon{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mon button{width:56px;font-size:28px;background:var(--card);border-radius:12px}
+.mon b{font-size:21px}
+.fbtn{width:100%;border-radius:12px;background:var(--card);border:2px solid var(--line);font-weight:700;margin-bottom:10px}
+.fpan{background:var(--card);border-radius:16px;padding:0 12px 14px;margin-bottom:12px}
+.sum{display:flex;justify-content:space-between;color:var(--sub);font-size:16px;margin:4px 2px 10px}
+.row{width:100%;display:flex;align-items:center;gap:8px;text-align:left;background:var(--card);border-radius:14px;margin-bottom:8px;padding:8px 12px 8px 0;min-height:64px}
+.row .d{width:56px;text-align:center;color:var(--sub);font-size:15px;flex:none}
+.row .m{flex:1;min-width:0}
+.row .m b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .m small{color:var(--sub);font-size:14px}
+.row .a{font-weight:700;font-size:19px;flex:none}
+.a.out{color:#c0392b}
+.a.in{color:#1f8a5b}
+.del{width:100%;margin-top:28px;color:#c0392b;font-weight:700;border:2px solid #c0392b;border-radius:12px}
+.empty{text-align:center;color:var(--sub);padding:50px 20px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 40px);transform:translateX(-50%);background:#1c2630;color:#fff;padding:12px 20px;border-radius:24px;font-size:17px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app"><div class="home"><h1>かけいぼ</h1><div class="sub">よみこみ中…</div></div></div>
+<div id="toast" class="toast"></div>
+<script src="core.js"></script>
+<script src="db.js"></script>
+<script>
+'use strict';
+let D, screen = 'home', T = { kind: 'out' };
+const $app = document.getElementById('app');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const yen = n => '¥' + Number(n).toLocaleString('ja-JP');
+const money = n => (n < 0 ? '−' : '') + yen(Math.abs(n));
+const standalone = () => navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2200); }
+const save = (store, obj) => DB.put(store, obj).catch(() => toast('保存できなかった。空き容量を確認してね'));
+
+/* ---------- ホーム ---------- */
+function homeView() {
+  const o = Core.overview(D);
+  const hint = !standalone() ? '<div class="note">Safariの共有ボタンから「ホーム画面に追加」して、そのアイコンから使ってね。</div>' : '';
+  const b = (v, n) => `<button class="big" data-act="go" data-v="${v}">${n}</button>`;
+  return `<div class="home"><h1>かけいぼ</h1>${hint}
+    <div class="bal"><div><small>現残高</small><b class="${o.total < 0 ? 'neg' : ''}">${money(o.total)}</b></div><div><small>実残高</small><b class="${o.real < 0 ? 'neg' : ''}">${money(o.real)}</b></div></div>
+    <div class="sub">カード未払い ${yen(o.unpaid)}　／　取り置き ${yen(o.reserved)}</div>
+    <div class="grid">${b('input', '✏️ 入力')}${b('list', '📒 一覧')}${b('flow', '💰 お金の流れ')}${b('card', '💳 カード')}${b('fixed', '🏠 固定費')}${b('settings', '⚙ 設定')}</div></div>`;
+}
+
+/* ---------- 設定 ---------- */
+const TYPE = { account: '口座', cash: '現金', prepaid: 'プリペイド' };
+const opt = (v, t, cur) => `<option value="${v}" ${String(cur) === String(v) ? 'selected' : ''}>${t}</option>`;
+const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+
+function walletRow(w) {
+  return `<div class="srow ${w.hidden ? 'off' : ''}"><div class="r1"><button class="nm" data-act="wren" data-id="${w.id}">${esc(w.name)} ✎</button><span class="tag">${TYPE[w.type]}</span><button class="tg" data-act="whide" data-id="${w.id}">${w.hidden ? '出す' : '隠す'}</button></div>
+    <label class="r2">開始残高 ¥<input class="num" inputmode="numeric" data-f="opening" data-id="${w.id}" value="${w.opening || ''}" placeholder="0"></label></div>`;
+}
+function cardRow(w) {
+  const accs = D.wallets.filter(x => x.type === 'account' && (!x.hidden || x.id === w.payAccount));
+  const sel = (f, inner) => `<select data-f="${f}" data-id="${w.id}">${inner}</select>`;
+  return `<div class="srow ${w.hidden ? 'off' : ''}"><div class="r1"><button class="nm" data-act="wren" data-id="${w.id}">${esc(w.name)} ✎</button><button class="tg" data-act="whide" data-id="${w.id}">${w.hidden ? '出す' : '隠す'}</button></div>
+    <div class="r3">
+      <label><span>締め日</span>${sel('closing', range(1, 28).map(n => opt(n, n + '日', w.closing)).join('') + opt('eom', '月末', w.closing))}</label>
+      <label><span>引き落とし日</span>${sel('dueMonths', opt(1, '締めの翌月', w.dueMonths) + opt(2, '締めの翌々月', w.dueMonths))}${sel('dueDay', range(1, 31).map(n => opt(n, n + '日', w.dueDay)).join(''))}</label>
+      <label><span>引き落とし口座</span>${sel('payAccount', opt('', '未設定', w.payAccount || '') + accs.map(a => opt(a.id, esc(a.name), w.payAccount)).join(''))}</label>
+    </div></div>`;
+}
+function settingsView() {
+  const S = D.settings, plain = D.wallets.filter(w => w.type !== 'card'), cards = D.wallets.filter(w => w.type === 'card');
+  const note = !S.setupDone ? '<div class="note">まず、財布の名前と開始残高、カードの引き落とし口座を入れてね。あとからいつでも直せるよ。</div>' : '';
+  const cats = D.categories.filter(c => c.kind === T.kind).map(c => `<div class="crow ${c.hidden ? 'off' : ''}"><button class="nm" data-act="cren" data-id="${c.id}">${esc(c.name)} ✎</button><button class="tg" data-act="chide" data-id="${c.id}">${c.hidden ? '出す' : '隠す'}</button></div>`).join('');
+  return `<header><button class="back" data-act="go" data-v="home">‹ もどる</button><h1>設定</h1></header>
+  <main>${note}
+    <h2 class="h2">給料日</h2><div class="srow"><label class="r2">毎月<input class="num" inputmode="numeric" data-f="payday" value="${S.payday}">日　（集計はこの日から次の前日まで）</label></div>
+    <h2 class="h2">財布</h2>${plain.map(walletRow).join('')}
+    <div class="adds"><button class="add" data-act="wadd" data-v="account">＋口座</button><button class="add" data-act="wadd" data-v="cash">＋現金</button><button class="add" data-act="wadd" data-v="prepaid">＋プリペイド</button></div>
+    <h2 class="h2">クレジットカード</h2>${cards.map(cardRow).join('')}<button class="add" data-act="cardadd">＋カードを追加</button>
+    <h2 class="h2">分類</h2><div class="seg">${[['out', '支出'], ['in', '収入']].map(([v, n]) => `<button data-act="tset" data-v="${v}" class="${T.kind === v ? 'on' : ''}">${n}</button>`).join('')}</div>
+    ${cats}<button class="add" data-act="catadd">＋分類を追加</button>
+    <div class="hint">「隠す」と入力の選択肢から消えるだけで、過去の記録はそのまま残るよ。</div>
+  </main>`;
+}
+
+/* ---------- 入力（支出・収入・振替・精算） ---------- */
+const newForm = () => ({ kind: 'out', amount: '', store: '', cat: null, wallet: null, from: null, to: null, date: Core.todayStr(), fixedId: null, card: null, billMonth: null, editId: null });
+let F = newForm();
+let L = null;
+const md = s => (+s.slice(5, 7)) + '/' + (+s.slice(8, 10));
+const chips = (items, key, cur) => `<div class="chips">${items.map(i => `<button data-act="pick" data-k="${key}" data-v="${i.id}" class="${cur === i.id ? 'on' : ''}">${esc(i.name)}</button>`).join('')}</div>`;
+const lab = w => ({ id: w.id, name: (w.type === 'card' ? '💳 ' : '') + w.name });
+const openBills = () => Core.bills(D).filter(b => b.card === F.card && (!b.settled || b.settleId === F.editId));
+
+function inputView() {
+  const W = D.wallets.filter(w => !w.hidden), pay = W.filter(w => w.type !== 'card'), cards = W.filter(w => w.type === 'card');
+  const cats = D.categories.filter(c => c.kind === F.kind && !c.hidden);
+  const kinds = [['out', '支出'], ['in', '収入'], ['xfer', '振替'], ['settle', '精算']];
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0', '⌫'];
+  const date = `<label class="t">日付</label><input class="txt" type="date" id="date" value="${F.date}">`;
+  let body = '', label = '金額';
+  if (F.kind === 'out') {
+    const fx = D.fixed.filter(x => !x.hidden);
+    let note = '';
+    const c = D.wallets.find(w => w.id === F.wallet);
+    if (c && c.type === 'card') { const b = Core.billFor(c, F.date); note = `<div class="pv">${esc(c.name)}：${md(b.closeDate)}締め → <b>${md(b.dueDate)}に引き落とし（${+b.billMonth.slice(5)}月分）</b></div>`; }
+    body = (fx.length ? `<label class="t">固定費の支払いなら選ぶ</label>${chips(fx, 'fixedId', F.fixedId)}` : '') +
+      `<label class="t">店</label><input class="txt" id="store" value="${esc(F.store)}" placeholder="例：スーパー○○" autocomplete="off">
+       <label class="t">分類</label>${chips(cats, 'cat', F.cat)}<label class="t">支払い元</label>${chips(W.map(lab), 'wallet', F.wallet)}${note}${date}`;
+  } else if (F.kind === 'in') {
+    body = `<label class="t">内容（なくてもOK）</label><input class="txt" id="store" value="${esc(F.store)}" autocomplete="off">
+      <label class="t">分類</label>${chips(cats, 'cat', F.cat)}<label class="t">入金先</label>${chips(pay, 'wallet', F.wallet)}${date}`;
+  } else if (F.kind === 'xfer') {
+    body = `<label class="t">どこから</label>${chips(pay, 'from', F.from)}<label class="t">どこへ</label>${chips(pay, 'to', F.to)}${date}`;
+  } else {
+    label = '実際の引き落とし額';
+    const bl = openBills(), cur = bl.find(b => b.billMonth === F.billMonth);
+    let note = '';
+    if (F.card && !bl.length) note = '<div class="pv warn">このカードに、まだ引き落とされていない分はないよ</div>';
+    if (cur && F.amount) { const d = parseInt(F.amount, 10) - cur.calc; note = `<div class="pv ${d ? 'warn' : ''}">計算額 ${yen(cur.calc)}　${d ? '差：' + (d > 0 ? '+' : '−') + yen(Math.abs(d)) : '→ 計算どおり'}</div>`; }
+    body = `<label class="t">カード</label>${chips(cards, 'card', F.card)}` +
+      (F.card && bl.length ? `<label class="t">何月分？</label><div class="chips">${bl.map(b => `<button data-act="pick" data-k="billMonth" data-v="${b.billMonth}" class="${F.billMonth === b.billMonth ? 'on' : ''}">${+b.billMonth.slice(5)}月分　${yen(b.calc)}</button>`).join('')}</div>` : '') +
+      `<label class="t">引き落とし口座</label>${chips(pay.filter(w => w.type === 'account'), 'wallet', F.wallet)}${note}${date}`;
+  }
+  return `<header><button class="back" data-act="go" data-v="${F.editId ? 'list' : 'home'}">‹ もどる</button><h1>${F.editId ? '修正' : '入力'}</h1></header>
+  <main><div class="seg">${kinds.map(([v, n]) => `<button data-act="kind" data-v="${v}" class="${F.kind === v ? 'on' : ''}">${n}</button>`).join('')}</div>
+    <div class="amt">${label}　¥ <b>${F.amount ? Number(F.amount).toLocaleString('ja-JP') : '0'}</b></div>
+    <div class="pad">${keys.map(k => `<button data-act="key" data-v="${k}">${k}</button>`).join('')}</div>${body}${F.editId ? '<button class="del" data-act="del">この記録を削除</button>' : ''}<div style="height:90px"></div></main>
+  <div class="savebar"><button data-act="save">${F.editId ? '直して保存' : '保存'}</button></div>`;
+}
+
+async function saveRecord() {
+  const amount = parseInt(F.amount || '0', 10);
+  if (!amount) return toast('金額を入れてね');
+  const r = { id: F.editId || Core.uid(), date: F.date || Core.todayStr(), kind: F.kind, amount };
+  if (F.kind === 'xfer') {
+    if (!F.from || !F.to) return toast('出す財布と入れる財布を選んでね');
+    if (F.from === F.to) return toast('同じ財布は選べないよ');
+    Object.assign(r, { from: F.from, to: F.to });
+  } else if (F.kind === 'settle') {
+    if (!F.card) return toast('カードを選んでね');
+    if (!F.billMonth) return toast('何月分か選んでね');
+    if (!F.wallet) return toast('引き落とし口座を選んでね');
+    Object.assign(r, { card: F.card, billMonth: F.billMonth, wallet: F.wallet });
+  } else {
+    if (!F.cat) return toast('分類を選んでね');
+    if (!F.wallet) return toast(F.kind === 'in' ? '入金先を選んでね' : '支払い元を選んでね');
+    Object.assign(r, { store: F.store.trim(), cat: F.cat, wallet: F.wallet });
+    if (F.kind === 'out' && F.fixedId) r.fixedId = F.fixedId;
+  }
+  try { await DB.commit({ records: [r] }); } catch (e) { return toast('保存できなかった。空き容量を確認してね'); }
+  if (F.editId) D.records = D.records.map(x => x.id === r.id ? r : x); else D.records.push(r);
+  toast(F.editId ? '直したよ' : '保存したよ'); screen = F.editId ? 'list' : 'home'; F = newForm(); render();
+}
+
+/* ---------- 一覧 ---------- */
+const nameW = id => { const w = findW(id); return w ? (w.type === 'card' ? '💳' : '') + w.name : '（不明）'; };
+const nameC = id => { const c = findC(id); return c ? c.name : '（不明）'; };
+const newL = () => ({ cycle: Core.cycleOf(Core.todayStr(), D.settings.payday), kind: null, cat: null, wallet: null, open: false });
+function rowHtml(r) {
+  let t, sub, a, cls = '';
+  if (r.kind === 'xfer') { t = nameW(r.from) + ' → ' + nameW(r.to); sub = '振替'; a = yen(r.amount); }
+  else if (r.kind === 'settle') { t = nameW(r.card) + ' ' + (+r.billMonth.slice(5)) + '月分'; sub = '精算 / ' + nameW(r.wallet); a = '−' + yen(r.amount); }
+  else { t = r.store || nameC(r.cat); sub = nameC(r.cat) + ' / ' + nameW(r.wallet) + (r.fixedId ? ' / 固定費' : ''); a = (r.kind === 'in' ? '+' : '−') + yen(r.amount); cls = r.kind; }
+  return `<button class="row" data-act="edit" data-id="${r.id}"><span class="d">${md(r.date)}</span><span class="m"><b>${esc(t)}</b><small>${esc(sub)}</small></span><span class="a ${cls}">${a}</span></button>`;
+}
+function listView() {
+  const pd = D.settings.payday, R = Core.cycleRange(L.cycle, pd);
+  const rows = D.records.map((r, i) => ({ r, i })).filter(({ r }) =>
+    Core.cycleOf(r.date, pd) === L.cycle && (!L.kind || r.kind === L.kind) && (!L.cat || r.cat === L.cat) &&
+    (!L.wallet || [r.wallet, r.from, r.to, r.card].includes(L.wallet))
+  ).sort((a, b) => b.r.date.localeCompare(a.r.date) || b.i - a.i).map(x => x.r);
+  let sin = 0, sout = 0; rows.forEach(r => { if (r.kind === 'in') sin += r.amount; else if (r.kind === 'out') sout += r.amount; });
+  const n = ['kind', 'cat', 'wallet'].filter(k => L[k]).length;
+  const fc = (k, items) => `<div class="chips">${items.map(([id, nm]) => `<button data-act="fl" data-k="${k}" data-v="${id}" class="${L[k] === id ? 'on' : ''}">${esc(nm)}</button>`).join('')}</div>`;
+  const showCat = !L.kind || L.kind === 'out' || L.kind === 'in';
+  const cats = D.categories.filter(c => !c.hidden && (!L.kind || c.kind === L.kind)).map(c => [c.id, c.name + (!L.kind && c.kind === 'in' ? '（収入）' : '')]);
+  const panel = !L.open ? '' : `<div class="fpan"><label class="t">種類</label>${fc('kind', [['out', '支出'], ['in', '収入'], ['xfer', '振替'], ['settle', '精算']])}
+    ${showCat ? `<label class="t">分類</label>${fc('cat', cats)}` : ''}
+    <label class="t">財布・カード</label>${fc('wallet', D.wallets.filter(w => !w.hidden).map(w => [w.id, (w.type === 'card' ? '💳' : '') + w.name]))}</div>`;
+  return `<header><button class="back" data-act="go" data-v="home">‹ もどる</button><h1>一覧</h1></header>
+  <main><div class="mon"><button data-act="mon" data-v="-1">‹</button><b>${md(R.start)}〜${md(R.end)}</b><button data-act="mon" data-v="1">›</button></div>
+    <button class="fbtn" data-act="flopen">絞り込み${n ? '（' + n + '）' : ''} ${L.open ? '▲' : '▼'}</button>${panel}
+    <div class="sum"><span>${rows.length}件</span><span>収入 ${yen(sin)}　支出 ${yen(sout)}</span></div>
+    ${rows.length ? rows.map(rowHtml).join('') : '<div class="empty">該当する記録はないよ</div>'}</main>`;
+}
+
+function stubView(name) { return `<header><button class="back" data-act="go" data-v="home">‹ もどる</button><h1>${name}</h1></header><main><div class="hint">この画面は次のステップで作るよ</div></main>`; }
+const NAMES = { input: '入力', list: '一覧', flow: 'お金の流れ', card: 'カード', fixed: '固定費' };
+function render(keep) {
+  const y = window.scrollY;
+  $app.innerHTML = screen === 'home' ? homeView() : screen === 'settings' ? settingsView() : screen === 'input' ? inputView() : screen === 'list' ? listView() : stubView(NAMES[screen]);
+  window.scrollTo(0, keep ? y : 0);
+}
+
+/* ---------- 操作 ---------- */
+const findW = id => D.wallets.find(x => x.id === id);
+const findC = id => D.categories.find(x => x.id === id);
+function ask(label, cur) { const n = prompt(label, cur || ''); return n === null || !n.trim() ? null : n.trim(); }
+
+$app.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, v = b.dataset.v, id = b.dataset.id;
+  if (a === 'go') {
+    if (screen === 'settings' && !D.settings.setupDone) { D.settings.setupDone = true; save('settings', D.settings); }
+    if (v === 'input') F = newForm();
+    if (v === 'list' && screen === 'home') L = newL();
+    screen = v; render();
+  }
+  else if (a === 'kind') { F = { ...newForm(), kind: v, amount: F.amount, date: F.date, editId: F.editId }; render(true); }
+  else if (a === 'pick') {
+    const k = b.dataset.k; F[k] = (k === 'fixedId' && F.fixedId === v) ? null : v;
+    if (k === 'fixedId' && F.fixedId) { const x = D.fixed.find(y => y.id === v); F.cat = F.cat || x.cat; F.wallet = F.wallet || x.wallet; F.store = F.store || x.name; F.amount = F.amount || String(x.amount); }
+    if (k === 'card') { F.billMonth = null; F.amount = ''; const c = findW(v); F.wallet = c && c.payAccount || null; }
+    if (k === 'billMonth') { const bl = openBills().find(y => y.billMonth === v); if (bl) { F.amount = String(bl.calc); const t = Core.todayStr(); F.date = bl.dueDate <= t ? bl.dueDate : t; } }
+    render(true);
+  }
+  else if (a === 'key') {
+    if (v === '⌫') F.amount = F.amount.slice(0, -1);
+    else if ((F.amount + v).length <= 9) F.amount = String(parseInt((F.amount || '') + v, 10) || '');
+    render(true);
+  }
+  else if (a === 'save') saveRecord();
+  else if (a === 'mon') { L.cycle = Core.addMonths(L.cycle, +v); render(); }
+  else if (a === 'flopen') { L.open = !L.open; render(true); }
+  else if (a === 'fl') { const k = b.dataset.k; L[k] = L[k] === v ? null : v; if (k === 'kind') L.cat = null; render(true); }
+  else if (a === 'edit') {
+    const r = D.records.find(x => x.id === id); if (!r) return;
+    F = { ...newForm(), kind: r.kind, amount: String(r.amount), date: r.date, editId: r.id, store: r.store || '', cat: r.cat || null, wallet: r.wallet || null, from: r.from || null, to: r.to || null, fixedId: r.fixedId || null, card: r.card || null, billMonth: r.billMonth || null };
+    screen = 'input'; render();
+  }
+  else if (a === 'del') {
+    if (!confirm('この記録を削除していい？')) return;
+    DB.commit(null, { records: [F.editId] }).then(() => {
+      D.records = D.records.filter(x => x.id !== F.editId);
+      toast('削除したよ'); F = newForm(); screen = 'list'; render();
+    }).catch(() => toast('削除できなかった'));
+  }
+  else if (a === 'tset') { T.kind = v; render(true); }
+  else if (a === 'wren' || a === 'cren') {
+    const it = a === 'wren' ? findW(id) : findC(id), n = ask('新しい名前', it.name); if (!n) return;
+    it.name = n; save(a === 'wren' ? 'wallets' : 'categories', it); render(true);
+  }
+  else if (a === 'whide' || a === 'chide') {
+    const it = a === 'whide' ? findW(id) : findC(id); it.hidden = !it.hidden;
+    save(a === 'whide' ? 'wallets' : 'categories', it); render(true);
+  }
+  else if (a === 'wadd') {
+    const n = ask(TYPE[v] + 'の名前'); if (!n) return;
+    const w = { id: Core.uid(), name: n, type: v, opening: 0, hidden: false }; D.wallets.push(w); save('wallets', w); render(true);
+  }
+  else if (a === 'cardadd') {
+    const n = ask('カードの名前'); if (!n) return;
+    const w = { id: Core.uid(), name: n, type: 'card', opening: 0, hidden: false, closing: 'eom', dueMonths: 1, dueDay: 27, payAccount: null };
+    D.wallets.push(w); save('wallets', w); render(true);
+  }
+  else if (a === 'catadd') {
+    const n = ask('分類の名前'); if (!n) return;
+    const c = { id: Core.uid(), name: n, kind: T.kind, hidden: false }; D.categories.push(c); save('categories', c); render(true);
+  }
+});
+
+$app.addEventListener('input', e => { if (e.target.id === 'store') F.store = e.target.value; });
+$app.addEventListener('change', e => {
+  const t = e.target, f = t.dataset.f;
+  if (t.id === 'date') { F.date = t.value || Core.todayStr(); render(true); return; }
+  if (!f) return;
+  if (f === 'payday') {
+    const n = Math.min(28, Math.max(1, parseInt(t.value, 10) || 25));
+    D.settings.payday = n; t.value = n; save('settings', D.settings); toast('給料日を' + n + '日にしたよ'); return;
+  }
+  const w = findW(t.dataset.id); if (!w) return;
+  if (f === 'opening') w.opening = parseInt(t.value.replace(/[^\d]/g, ''), 10) || 0;
+  else if (f === 'closing') w.closing = t.value === 'eom' ? 'eom' : +t.value;
+  else if (f === 'dueMonths' || f === 'dueDay') w[f] = +t.value;
+  else if (f === 'payAccount') w.payAccount = t.value || null;
+  save('wallets', w);
+  if (f === 'opening') t.value = w.opening || '';
+});
+
+/* ---------- 起動 ---------- */
+(async () => {
+  try {
+    D = await DB.init();
+    const add = Core.ensureReserves(D, Core.todayStr());   // 給料日を過ぎていたら取り置きを作る
+    if (add.length) { D.reserves.push(...add); await DB.commit({ reserves: add }); }
+    if (!D.settings.setupDone) screen = 'settings';
+    render();
+  } catch (e) {
+    console.error(e);
+    $app.innerHTML = '<div class="home"><h1>かけいぼ</h1><div class="note">このブラウザでは保存が使えないみたい。プライベートブラウズを切ってみてね。</div></div>';
+  }
+})();
+</script>
+</body>
+</html>
